@@ -136,7 +136,7 @@ def build_generator(g_power,img_shape):
     u3_2 = deconv2d(u3_1, d0_2, g_power)
     u3_3 = deconv2d_same(u3_2, d0_1, g_power)
 
-    output_img = ResidualBlockLast(x = u3_3, filters = img_shape[-1], kernel_size = (4, 4), weight_decay = 1e-4, downsample = False)
-    output_img = Conv2D(img_shape[-1], kernel_size=4, strides=1, padding='same', activation='tanh')(output_img)
+    output_img = ResidualBlockLast(x = u3_3, filters = 4, kernel_size = (4, 4), weight_decay = 1e-4, downsample = False)
+    output_img = Conv2D(4, kernel_size=4, strides=1, padding='same', activation='tanh')(output_img)
 
     return Model(d, output_img)

@@ -137,3 +137,33 @@ def ResNet18_6_Parted_NoPooling(classes, size, input_shape, weight_decay=1e-4):
     
     model = Model(input, outputs = [x1,x2,x3,x4,x5,x6], name='ResNet18')
     return model
+
+def ResNet18_5_Parted_NoPooling(classes, size, input_shape, weight_decay=1e-4):
+    
+    input = Input(shape=input_shape)
+    x = input / 255
+    # x = conv2d_bn_relu(x, filters=64, kernel_size=(7, 7), weight_decay=weight_decay, strides=(2, 2))
+    # x = MaxPool2D(pool_size=(3, 3), strides=(2, 2),  padding='same')(x)
+    x = conv2d_bn_relu(x, filters=8*size, kernel_size=(3, 3), weight_decay=weight_decay, strides=(1, 1))
+
+    # # conv 2
+    x = ResidualBlock(x, filters=8*size, kernel_size=(3, 3), weight_decay=weight_decay, downsample=False)
+    x = ResidualBlock(x, filters=8*size, kernel_size=(3, 3), weight_decay=weight_decay, downsample=False)
+    # # conv 3
+    x = ResidualBlock(x, filters=16*size, kernel_size=(3, 3), weight_decay=weight_decay, downsample=True)
+    x = ResidualBlock(x, filters=16*size, kernel_size=(3, 3), weight_decay=weight_decay, downsample=False)
+    # # conv 4
+    x = ResidualBlock(x, filters=32*size, kernel_size=(3, 3), weight_decay=weight_decay, downsample=True)
+    x = ResidualBlock(x, filters=32*size, kernel_size=(3, 3), weight_decay=weight_decay, downsample=False)
+    # # conv 5
+    x = ResidualBlock(x, filters=64*size, kernel_size=(3, 3), weight_decay=weight_decay, downsample=True)
+    x = ResidualBlock(x, filters=64*size, kernel_size=(3, 3), weight_decay=weight_decay, downsample=False)
+    x = Flatten()(x)
+    x1 = Dense(classes, name = "digit1", activation='softmax',kernel_initializer='he_normal')(x)
+    x2 = Dense(classes, name = "digit2", activation='softmax',kernel_initializer='he_normal')(x)
+    x3 = Dense(classes, name = "digit3", activation='softmax',kernel_initializer='he_normal')(x)
+    x4 = Dense(classes, name = "digit4", activation='softmax',kernel_initializer='he_normal')(x)
+    x5 = Dense(classes, name = "digit5", activation='softmax',kernel_initializer='he_normal')(x)
+    
+    model = Model(input, outputs = [x1,x2,x3,x4,x5], name='ResNet18')
+    return model
