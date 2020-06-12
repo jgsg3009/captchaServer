@@ -7,14 +7,20 @@ import base64
 import cv2
 import sys
 
+# 사이트 늘어날 때 마다 추가
+sys.path.insert(0, './법원')
+sys.path.insert(0, './민원24')
+from 법원.predict import PredictCaptcha
+from predictCaptcha
+
+
 app = Flask('predict Captcha')
 api = Api(app)
 class CaptchaPredict(Resource) :
     
         def __init__(self, gpu_on = True) : 
-            
-            sys.path.insert(0, './법원')
-            from predictCaptcha import PredictCaptcha
+            #
+
             self.predictor = PredictCaptcha()
             self.r = request
             if not gpu_on :
