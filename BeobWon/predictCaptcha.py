@@ -1,5 +1,5 @@
-from generator import build_generator
-from solver import ResNet18_6_Parted_NoPooling as build_solver
+from . generator import build_generator
+from . solver import ResNet18_6_Parted_NoPooling as build_solver
 import cv2
 import numpy as np
 from time import time
