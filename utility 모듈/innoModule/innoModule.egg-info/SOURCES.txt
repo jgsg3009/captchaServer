@@ -1,0 +1,11 @@
+README.md
+setup.py
+OCR/BeobWonRefreshButton.png
+OCR/MinWon24RefreshButton.png
+OCR/__init__.py
+OCR/getAnswer.py
+innoModule.egg-info/PKG-INFO
+innoModule.egg-info/SOURCES.txt
+innoModule.egg-info/dependency_links.txt
+innoModule.egg-info/not-zip-safe
+innoModule.egg-info/top_level.txt
