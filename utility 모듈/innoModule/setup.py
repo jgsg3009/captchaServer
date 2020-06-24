@@ -12,7 +12,8 @@ setup(
     keywords         = ['captcha'],
     python_requires  = '>=2.7',
     package_data={ 
-        'OCR': ['BeobWonRefreshButton.png','MinWon24RefreshButton.png']
+        'OCR': ['BeobWonRefreshButton.png','MinWon24RefreshButton.png'],
+        'Excel' : ['poi-4.1.2/*','poi-4.1.2/lib/*', 'poi-4.1.2/ooxml-lib/*']
     },
     zip_safe=False,
     classifiers      = [
