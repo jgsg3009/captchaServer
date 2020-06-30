@@ -13,7 +13,8 @@ setup(
     python_requires  = '>=2.7',
     package_data={ 
         'OCR': ['BeobWonRefreshButton.png','MinWon24RefreshButton.png'],
-        'Excel' : ['poi-4.1.2/*','poi-4.1.2/lib/*', 'poi-4.1.2/ooxml-lib/*']
+        'Excel' : ['poi-4.1.2/*','poi-4.1.2/lib/*', 'poi-4.1.2/ooxml-lib/*'],
+        'DB' : ['jdbc_driver/*']  
     },
     zip_safe=False,
     classifiers      = [

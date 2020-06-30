@@ -1,5 +1,9 @@
 README.md
 setup.py
+DB/DB.py
+DB/__init__.py
+DB/jdbc_driver/mssql-jdbc-8.2.2.jre8.jar
+DB/jdbc_driver/ojdbc8-19.3.0.0.jar
 Excel/Excel.py
 Excel/__init__.py
 Excel/poi-4.1.2/poi-4.1.2.jar
