@@ -1,10 +1,13 @@
+#-*- coding:utf-8 -*-
+
 from java.io import FileInputStream
 from java.io import FileOutputStream
 from org.apache.poi.xssf.usermodel import XSSFWorkbook
 from org.apache.poi.hssf.usermodel import HSSFWorkbook
 from org.apache.poi.ss.util import CellReference
 
-class Excel():
+class Excel() :
+
     def __init__(self) :
         self.workBook = None
         self.workBookType = None

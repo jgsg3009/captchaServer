@@ -1,190 +1,198 @@
 #-*- coding:utf-8 -*-
-from java.lang import Class
-from java.sql import DriverManager
-from java.sql import Types
 
-from itertools import izip_longest
+import os
+import jaydebeapi as jdb
 import traceback
+from itertools import izip_longest
 
-class DB():
+class DB() :
     def __init__(self, driver_name = "oracle", host="localhost", port = None, service_name = "orclcdb.localdomain"):
         self.conn = None
+        self.cur = None
+        self.driver = None
         self.jdbc_url = None
+        self.jdbc_jar_path = None
         self.port = None
-        self.stmt = None
-        self.pstmts = []
-        self.pstmtQuerys = []
-        self.cstmts = []
-        self.cstmtStates = []
-        self.resultSet = None
-        self.resultSetMetaData = None
-        self.columnCount = None
+        self.exceptionClose = False
+        
+        currentPath = os.path.dirname(__file__)
         try :
             if driver_name == 'oracle' :
-                Class.forName("oracle.jdbc.driver.OracleDriver")
+                self.driver = "oracle.jdbc.driver.OracleDriver"
                 jdbc_header = "jdbc:oracle:thin"
                 if port == None :
                     port = "1521" 
                 self.jdbc_url = "{}:@{}:{}/{}".format(jdbc_header,host,port,service_name)
+                self.jdbc_jar_path = "{}/jdbc_drivers/ojdbc8-19.3.0.0.jar".format(currentPath)
             elif driver_name == 'oracle_sid' :
-                Class.forName("oracle.jdbc.driver.OracleDriver")
+                self.driver = "oracle.jdbc.driver.OracleDriver"
                 jdbc_header = "jdbc:oracle:thin"
                 if port == None :
                     port = "1521" 
-                self.jdbc_url = "{}:@{}:{}:{}".format(jdbc_header,host,port,service_name)                
+                self.jdbc_url = "{}:@{}:{}:{}".format(jdbc_header,host,port,service_name)
+                self.jdbc_jar_path = "{}/jdbc_drivers/ojdbc8-19.3.0.0.jar".format(currentPath)                
             elif driver_name == 'sql_server' :
-                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver")
+                self.driver = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
                 jdbc_header = "jdbc:sqlserver"
                 if port == None :
                     port = "1433"
                 self.jdbc_url ="{}://{}:{};DatabaseName={}".format(jdbc_header,host,port,service_name)
+                self.jdbc_jar_path = "{}/jdbc_drivers/mssql-jdbc-8.2.2.jre8.jar".format(currentPath)
         except :
             traceback.print_exc()
-            print("please check driver name")
+            raise Exception("import module failed")
+        
     def connect(self, username, password) :
         try :
-            self.conn = DriverManager.getConnection(self.jdbc_url, username, password)
-            self.stmt = self.conn.createStatement()
+            self.conn = jdb.connect(self.driver,self.jdbc_url, [username, password], self.jdbc_jar_path)
         except :
             traceback.print_exc()
-            if not self.conn == None :
-                self.conn.close()
+            raise Exception("DB connection error")
+
     def close(self):
         try :
-            if not self.stmt == None :
-                self.stmt.close()
-            if not len(self.pstmts) == 0 :
-                for pstmt in self.pstmts :
-                    pstmt.close()
-            if not self.resultSet == None :
-                self.resultSet.close()
-            if not len(self.cstmts) == 0 :
-                for cstmt in self.cstmts :
-                    cstmt.close()
+            if not self.cur == None :
+                self.cur.close()
         finally :
             if not self.conn == None :
                 self.conn.close()
-    def executeQuery(self, query, values = None):
+    def execute(self, query, values = None):
         try :
+            if self.cur == None :
+                self.cur = self.conn.cursor()
+                
             if values == None :
-                if not self.resultSet == None :
-                    self.resultSet.close()
-                self.resultSet = self.stmt.executeQuery(query)
+                self.cur.execute(query)
             else :
-                if not self.resultSet == None :
-                    self.resultSet.close()
-                pstmt = self.checkQueryDup(query)
-                for index, value in enumerate(values) :
-                    pstmt.setString(index+1,value)
-                self.resultSet = pstmt.executeQuery()
-            self.resultSetMetaData = self.resultSet.getMetaData()
-            self.columnCount = self.resultSetMetaData.getColumnCount()
+                self.cur.execute(query,values)
         except :
             traceback.print_exc()
-            print("executeQuery failed")
-    def executeUpdate(self, query, values = None):
+            if self.exceptionClose :
+                self.conn.close()
+            raise ExecuteException(query,values)
+
+    def executemany(self, query, valueList = []):
         try :
-            if values == None :
-                affectedRowNum = self.stmt.executeUpdate(query)
-            else :
-                pstmt = self.checkQueryDup(query)
-                for index, value in enumerate(values) :
-                    pstmt.setString(index+1,value)
-                affectedRowNum = pstmt.executeUpdate()
-            return affectedRowNum
+            if self.cur == None :
+                self.cur = self.conn.cursor()
+                
+            self.cur.executemany(query,valueList)
         except :
             traceback.print_exc()
-            print("executeUpdate failed")
+            if self.exceptionClose :
+                self.conn.close()
+            raise ExecuteException(query)
 
     def transaction(self, queryList, valueList = []) :
         try :
-            self.conn.setAutoCommit(False) 
+            self.conn.jconn.setAutoCommit(False) 
             transaction_set = enumerate(izip_longest(queryList,valueList, fillvalue=None))
-            for repeat,(query,values) in transaction_set:
+            for step,(query,values) in transaction_set:
                 # stop transaction if query is None
                 if query == None :
                     break
                 else :
                     if values == None :
-                        self.stmt.executeUpdate(query)
+                        self.execute(query)
                     else :
-                        pstmt = self.checkQueryDup(query)
-                        for index,value in enumerate(values) :
-                            pstmt.setString(index+1,value)
-                        pstmt.executeUpdate()
+                        self.execute(query,values)
+            self.conn.commit()
         except :
             traceback.print_exc()
-            self.conn.rollback()
-            print("transaction failed in ({}/{})".format(repeat, len(queryList)))
+            self.conn.jconn.rollback()
+            if self.exceptionClose :
+                self.close()
+            raise TransactionException(step, len(queryList))
         finally:
-            self.conn.setAutoCommit(True)
-    def callproc(self, procedure_name, values = []):
-        cstmt = self.checkProcedureDup(procedure_name,len(values))
-        for index,value in enumerate(values) :
-            cstmt.setString(index+1,value)
-        cstmt.execute()
+            if not self.conn.jconn == None :
+                self.conn.jconn.setAutoCommit(True)
+                
+    def callproc(self, procedure_name, values = None):
+        try : 
+            if values == None :
+                len_values = 0
+            else :
+                len_values = len(values)
+            question_marks = ",".join(["?" for _ in range(len_values)])
+            query = "{"+"call {}({})".format(procedure_name,question_marks)+"}"
+            self.execute(query,values)
+        except :
+            traceback.print_exc()
+            if self.exceptionClose :
+                self.close()
+            raise ProcException()
+        
     def fetchone(self):
-        if not self.resultSet == None :
-            if self.resultSet.next() :
-                return self.fetchoneRow()
+        if not self.cur == None :
+            if not self.cur._rs == None :
+                return self.cur.fetchone()
+            else :
+                raise NonResultSetException()
+        else : 
+            raise NonCursorException()
         
     def fetchall(self):
-        result = []
-        if not self.resultSet == None :
-            while self.resultSet.next() :
-                result.append(self.fetchoneRow())
-        return result
-    
-    def fetchmany(self, count=1):
-        result = []
-        repeat = 0
-        while self.resultSet.next() and repeat < count :
-            result.append(self.fetchoneRow())
-            repeat += 1
-        return result
-    def rownumber(self):
-        if not self.resultSet == None :
-            return self.resultSet.getRow()
-    def checkQueryDup(self, query):
-        for index, pstmtQuery in enumerate(self.pstmtQuerys) :
-            if query == pstmtQuery :
-                return self.pstmts[index] 
-        pstmt = self.conn.prepareStatement(query)
-        self.pstmts.append(pstmt)
-        self.pstmtQuerys.append(query)
-        return pstmt
-    def checkProcedureDup(self, procedure_name, procedure_valueNum):
-        for index, (name,valueNum) in enumerate(self.cstmtStates) :
-            if procedure_name == name and procedure_valueNum == valueNum:
-                return self.cstmts[index]
-        question_marks = ",".join(["?" for _ in range(procedure_valueNum)])
-        query = "{"+"call {}({})".format(procedure_name,question_marks)+"}"
-        cstmt = self.conn.prepareCall(query)
-        self.cstmts.append(cstmt)
-        self.cstmtStates.append((procedure_name, procedure_valueNum))
-        return cstmt
-    def fetchoneRow(self):
-        if not self.resultSet == None :
-            rowValues = []
-            for index in range(1,self.columnCount+1) :
-                columnType = self.resultSetMetaData.getColumnType(index)
-                if columnType in [ Types.NUMERIC,
-                                   Types.REAL, 
-                                   Types.FLOAT, 
-                                   Types.DOUBLE ] :
-                    s = self.resultSet.getString(index);
-                    s = float(s)
-                elif columnType in [ Types.TINYINT,
-                                     Types.SMALLINT, 
-                                     Types.INTEGER, 
-                                     Types.BIGINT, 
-                                     Types.DECIMAL ] :
-                    s = self.resultSet.getString(index);
-                    s = int(s)
-                elif columnType in [ Types.BOOLEAN, Types.BIT ] :
-                    s = self.resultSet.getString(index);
-                    s = bool(s)
-                else :
-                    s = self.resultSet.getString(index)
-                rowValues.append(s)
-            return rowValues
+        if not self.cur == None :
+            if not self.cur._rs == None :
+                return self.cur.fetchall()
+            else :
+                raise NonResultSetException()
+        else : 
+            raise NonCursorException()
+        
+    def fetchmany(self, num = 1):
+        if not self.cur == None :
+            if not self.cur._rs == None :
+                return self.cur.fetchmany(num)
+            else :
+                raise NonResultSetException()
+        else :
+            raise NonCursorException()
+        
+    def affectedRow(self):
+        if not self.cur == None :
+                return self.cur.rowcount
+        else :
+            raise NonCursorException()
+            
+    class NonCursorException(Exception) :
+        def __init__(self, msg = None):
+            if msg == None :
+                self.msg = "execute first before call fetch"
+            else : 
+                self.msg = msg
+        def __str__(self):
+            return self.msg
+        
+    class NonResultSetException(Exception):
+        def __init__(self,msg = None):
+            if msg == None :
+                self.msg = "fetch failed. resultSet doesn't exist."
+            else : 
+                self.msg = msg
+        def __str__(self) :
+            return self.msg   
+
+    class ExecuteException(Exception):
+        def __init__(self, query, values):
+            if values == None :
+                self.msg = "execute failed in query : {}".format(query)
+            else : 
+                self.msg = "execute failed in query : {}, values : {}".format(query, values)
+        def __str__(self) :
+            return self.msg    
+        
+    class ProcException(Exception) :
+        def __init__(self, msg = None):
+            if msg == None :
+                self.msg = "callproc failed."
+            else : 
+                self.msg = msg  
+        def __str__(self) :
+            return self.msg    
+        
+    class TransactionException(Exception):         
+        def __init__(self, step, len_queryList):
+            self.msg = "transaction failed in ({}/{})".format(step, len_queryList)
+        def __str__(self) :
+            return self.msg
