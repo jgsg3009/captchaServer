@@ -1,0 +1,133 @@
+데이터 모음
+    createTableQuery = "CREATE TABLE TEST (id INTEGER, country NVARCHAR2(20), signInTime DATE)"
+    selectQuery = "SELECT * FROM TEST"
+    insertQueryNoString = "INSERT INTO TEST (id, country, signInTime) VALUES('0','example','2020-01-01')"
+    insertQuery = "INSERT INTO TEST (id, country, signInTime) VALUES(?,?,?)"
+    updateQueryNoString = "UPDATE TEST SET country = updateTest1, signInTime = 2019-01-01 where id = 0"
+    updateQuery = "UPDATE TEST SET country = ?, signInTime = ? WHERE id = ?"
+    deleteQueryNoString = "DELETE FROM TEST WHERE id = 0"
+    deleteQuery = "DELETE FROM TEST WHERE id = ?"
+DB Connect Oracle By service_name
+    from inno.rpa import DBClient
+    username = "username"
+    password = "password"
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect( username, password )
+    db.close()
+DB Connect Oracle By Sid
+    from inno.rpa import DBClient
+    username = "username"
+    password = "password"
+    db = DB( driver_name = "oracle_sid", host="172.16.33.125", port = 1521, service_name = "xe" )
+    db.connect( username, password )
+    db.close()
+DB Connect MSSQL
+    from inno.rpa import DBClient
+    username = "username"
+    password = "password"
+    db = DB( driver_name = "sql_server", host="172.16.33.125", port = 1433, service_name = "jegal" )
+    db.connect( username, password )
+    db.close()
+DB Close
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.close()
+INSERT(No param)
+    insertQueryNoParam = "INSERT INTO TEST (id, country, signInTime) VALUES('0','example','2020-01-01')"
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.execute(insertQueryNoParam)
+    print(db.affectedRow())
+    db.close()
+INSERT(Use param)
+    insertQuery = "INSERT INTO TEST (id, country, signInTime) VALUES(?,?,?)"
+    values = ["1","Korea","2020-01-01"]
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.execute(insertQuery, values)
+    print(db.affectedRow())
+    db.close()
+update(No param)
+    updateQueryParam = "UPDATE TEST SET country = 'updateTest1', signInTime = '2019-01-01' where id = 0"
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.execute(updateQueryParam)
+    print(db.affectedRow())
+    db.close()
+update(Use param)
+    updateQuery = "UPDATE TEST SET country = ?, signInTime = ? WHERE id = ?"
+    values = ["Korea","2020-01-01","1"]
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.execute(updateQuery,values)
+    print(db.affectedRow())
+    db.close()
+DELETE(No param)
+    selectQueryParam = "SELECT * FROM TEST"
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.execute(selectQueryParam)
+    print(db.fetchall())
+    db.close()
+DELETE(Use param)
+    deleteQuery = "DELETE FROM TEST WHERE id = ?"
+    values = ["1"]
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.execute(deleteQuery, values)
+    print(db.affectedRow())
+    db.close()
+SELECT(No param)
+    selectQueryParam = "SELECT * FROM TEST"
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.execute(selectQueryParam)
+    print(db.fetchall())
+    db.close()
+SELECT(Use param)
+    selectQuery = "SELECT * FROM TEST WHERE id=?"
+    values = ["1"]
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.execute(selectQuery,values)
+    print(db.fetchall())
+    db.close()
+transaction ( None으로 Statement를, pythonList로 PreparedStatement를 호출 할 수 있음)
+    insertQuery = "INSERT INTO TEST (id, country, signInTime) VALUES('3','transaction','2021-01-01')"
+    updateQuery = "UPDATE TEST SET country = ?, signInTime = ? WHERE id = ?"
+    deleteQuery = "DELETE FROM TEST WHERE id = 3"
+    queryList = [insertQuery,updateQuery,deleteQuery]
+    valueList = [None,["transactionTest","2019-01-01","3"],[]]
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.transaction(queryList, valueList)
+    db.close()
+callproc 
+    selectQuery = "SELECT * FROM TEST"
+    values = ["Korea","2019-01-01"]
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.callproc('test_procedure', values)jaydebeapi
+    db.close()
+fecthone ( 파이썬 List 반환. 다음 행이 없다면 빈 행 반환 )
+    selectQuery = "SELECT * FROM TEST"
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.execute(selectQuery)
+    print(db.fetchone())
+    db.close()
+fetchall ( 파이썬 List 반환. 다음 행 부터 남은 행 모두를 반환 )
+    selectQuery = "SELECT * FROM TEST"
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.execute(selectQuery)
+    print(db.fetchall())
+    db.close()
+fetchmany ( 파이썬 List 반환. 다음 행 포함 n개의 행을 반환 )
+    selectQuery = "SELECT * FROM TEST"
+    db = DB( driver_name = "oracle", host="172.16.33.125", port = 1521, service_name = "orclcdb.localdomain" )
+    db.connect(username, password)
+    db.execute(selectQuery)
+    print(db.fetchmany(2))
+    db.close()
+

@@ -1,0 +1,23 @@
+import random
+from Excel.Automation import ExcelAutomation
+
+formula = [["=SUM(E2:E6)","=SUM(F2:F6)","=SUM(G2:G6)","=SUM(H2:H6)"]]
+data = []
+for i in range(5) :
+    temp = []
+    for j in range(4) :
+        temp.append(random.randrange(1,10))
+    data.append(temp)
+excel = ExcelAutomation(visible=True)
+excel.open("E:\\Downloads\\ChartExcel.xlsx")
+excel.setValue(("E2","H6"), data)
+excel.autoFit(("E2","H6"))
+excel.setValue(("E8","H8"), formula)
+excel.save("E:\\Downloads\\ChartExcel1.xlsx")
+excel.close()
+excel(visible=False) 
+excel.open(filename=None) : 주어지지 않을시, 빈 워크북을 생성한다.
+excel.setValue(cellRange,data) : 주어진 Range에 값을 세팅한다. data는 2D List이어야한다.
+excel.autoFit(cellRange) : 주어진 영역의 컬럼넓이를 자동 조정한다.
+excel.save(filename=None) : 주어진 파일명으로 저장한다. 없다면, open한 파일을 덮어쓴다.
+excel.close() : 모든 리소스를 해제한다.

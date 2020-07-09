@@ -1,0 +1,11 @@
+from inno.rpa import Excel
+
+test = Excel()
+test.open("/home/jegal/example.xls")
+test.getCell("A1",sheet="Sheet1")
+test.setCell("A1","Na0")
+test.setCell((16,0),"Na15")
+test.deleteCell((0,0))
+test.deleteCell((15,0))
+test.save("/home/jegal/example1.xls")
+test.close()

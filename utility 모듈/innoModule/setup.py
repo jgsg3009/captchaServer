@@ -7,14 +7,12 @@ setup(
     author           = 'Sung Gyu Jaegal',
     author_email     = 'jgsg3009@innorules.com',
     url              = 'https://github.com/jgsg3009/innoOCR',
-    install_requires=[],
+    install_requires = [],
     packages         = find_packages(exclude = ['docs', 'tests*']),
     keywords         = ['innoModule','jython','excel','db connection','captcha'],
     python_requires  = '>=2.7',
     package_data={ 
-        'OCR': ['BeobWonRefreshButton.png','MinWon24RefreshButton.png'],
-        'Excel' : ['poi-4.1.2/*','poi-4.1.2/lib/*', 'poi-4.1.2/ooxml-lib/*','jna/*'],
-        'DB' : ['jdbc_driver/*']  
+        'inno' : ['rpa/poi-4.1.2/*','rpa/poi-4.1.2/*/*','rpa/jna/*','rpa/jdbc_drivers/*','rpa/captcha_sorvler_images/*'] 
     },
     zip_safe=False,
     classifiers      = [
