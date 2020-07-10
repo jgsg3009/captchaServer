@@ -12,32 +12,11 @@ class CaptchaSolver() :
         test_url = 'http://'+host+':5000/predict?site=' + site
         currentPath = os.path.dirname(__file__)
         if site == "BeobWon" :
-            m = find(r'{}{}'.format(currentPath,"//captcha_sorvler_images//BeobWonRefreshButton.png"))
+            m = find(r'{}{}'.format(currentPath,"/captcha_solver_images/BeobWonRefreshButton.png"))
             loc = (m.x ,m.y)
             path = capture(loc[0]-151,loc[1]-11,120,40)
         elif site == "MinWon24" :
-            m = find(r'{}{}'.format(currentPath,"//captcha_sorvler_images//MinWon24RefreshButton.png"))
-            loc = (m.x ,m.y)
-            path = capture(loc[0]-106,loc[1]-5,100,40)
-
-        with open(path, "rb") as img_file:
-            base64Encoded = base64.b64encode(img_file.read())
-        response = requests.post(test_url, data=base64Encoded)
-
-        os.remove(path)
-        
-        result = json.loads(response.text)
-        return result["answer"]
-    @staticmethod
-    def solve(host, site) :
-        test_url = 'http://'+host+':5000/predict?site=' + site
-        currentPath = os.path.dirname(__file__)
-        if site == "BeobWon" :
-            m = find(r'{}{}'.format(currentPath,"/captcha_sorvler_images/BeobWonRefreshButton.png"))
-            loc = (m.x ,m.y)
-            path = capture(loc[0]-151,loc[1]-11,120,40)
-        elif site == "MinWon24" :
-            m = find(r'{}{}'.format(currentPath,"/captcha_sorvler_images/MinWon24RefreshButton.png"))
+            m = find(r'{}{}'.format(currentPath,"/captcha_solver_images/MinWon24RefreshButton.png"))
             loc = (m.x ,m.y)
             path = capture(loc[0]-106,loc[1]-5,100,40)
 

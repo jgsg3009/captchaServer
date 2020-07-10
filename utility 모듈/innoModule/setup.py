@@ -12,7 +12,7 @@ setup(
     keywords         = ['innoModule','jython','excel','db connection','captcha'],
     python_requires  = '>=2.7',
     package_data={ 
-        'inno' : ['rpa/poi-4.1.2/*','rpa/poi-4.1.2/*/*','rpa/jna/*','rpa/jdbc_drivers/*','rpa/captcha_sorvler_images/*'] 
+        'inno' : ['rpa/poi-4.1.2/*','rpa/poi-4.1.2/*/*','rpa/jna/*','rpa/jdbc_drivers/*','rpa/captcha_solver_images/*'] 
     },
     zip_safe=False,
     classifiers      = [
