@@ -1,2 +1,4 @@
 gast==0.3.2
+numpy==1.18.4
+opencv-python==4.1.2.30
 tensorflow-gpu==2.2.0
