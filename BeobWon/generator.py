@@ -15,7 +15,6 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.regularizers import l2
 from tensorflow.keras.losses import binary_crossentropy
 import datetime
-import matplotlib.pyplot as plt
 import sys
 import numpy as np
 import os
