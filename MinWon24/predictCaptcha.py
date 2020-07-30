@@ -7,11 +7,12 @@ from time import time
 class PredictCaptcha():
     def __init__(self) :
         
+        currentPath = os.path.dirname(__file__)
         self.img_shape = (40,120,4)
         self.generator = build_generator(g_power = 25, img_shape = self.img_shape)
         self.solver = build_solver(input_shape=(40,120,4), size = 1, classes=10, weight_decay=5e-4)
-        self.generator.load_weights('./MinWon24/generator_weights.h5')
-        self.solver.load_weights('./MinWon24/solver_weights.h5')
+        self.generator.load_weights(currentPath + '/generator_weights.h5')
+        self.solver.load_weights(currentPath + '/solver_weights.h5')
 
     def predict(self, img_array) :
         
