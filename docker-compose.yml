@@ -1,0 +1,15 @@
+version: '3'
+services:
+  captcha_server:
+    restart: always
+    container_name: compose_captcha_server
+    volumes:
+        - .:/root/src
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+      args:
+        TF_PACKAGE_VERSION: '2.2.0'
+    ports:
+        - '5000:5000'
+    command: [ 'bash', '-c', '/root/src/entrypoint.sh' ]
