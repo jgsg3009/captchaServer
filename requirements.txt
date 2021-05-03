@@ -1,3 +1,6 @@
-Pillow
-Flask-RESTful
-opencv-python-headless
+Pillow==6.2.0
+Flask-RESTful==0.3.8
+gast==0.3.3
+numpy==1.18.4
+opencv-python-headless==-4.5.1.48
+tensorflow-gpu==2.2.0

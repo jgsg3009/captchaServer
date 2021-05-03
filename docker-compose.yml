@@ -1,14 +1,14 @@
-version: '3'
+version: "3"
 services:
-  captcha_server:
-    restart: always
-    container_name: compose_captcha-server
-    image: 'innorules/captcha-server:v1'
-    volumes:
-        - .:/root/src
-    build:
-      context: ./
-      dockerfile: ./Dockerfile
-    ports:
-        - '5000:5000'
-    command: [ 'bash', '-c', '/root/src/entrypoint.sh' ]
+ captcha_server:
+  restart: always
+  container_name: compose_captcha-server
+  image: "innorules/captcha-server:v1"
+  volumes:
+   - .:/root/src
+  build:
+   context: ./
+   dockerfile: ./Dockerfile
+  ports:
+   - "5000:5000"
+  command: ["bash", "-c", "/root/src/entrypoint.sh"]
