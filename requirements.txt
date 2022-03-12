@@ -1,4 +1,4 @@
-Pillow==6.2.0
+Pillow==9.0.1
 Flask-RESTful==0.3.8
 gast==0.3.3
 opencv-python-headless==4.5.1.48
